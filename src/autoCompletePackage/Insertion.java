@@ -1,35 +1,62 @@
 package autoCompletePackage;
 
-import java.util.ArrayList;
-
+import java.util.Comparator;
 public class Insertion {
-	
-	public static void sort(Comparable[] searchDataList){
-		int N = searchDataList.length;
-		for(int i=0; i < N; i++){
-			for(int j =i; j > 0; j--){
-				if (less(searchDataList[j], searchDataList[j-1]))
-					exch(searchDataList, j, j-1);
-					else break;	
-				}
-			}
-		
-		
-	}
-	private static boolean less(Comparable<Comparable> v, Comparable w){
-		
-		return v.compareTo(w) < 0;
-	}
-	
-	private static void exch(Comparable[] a, int i, int j){
-		
-		Comparable<?> swap = a[i];
-		a[i] = a[j];
-		a[j] = swap;
-	}
-	public static void sort(ArrayList<String> searchDataList) {
-		// TODO Auto-generated method stub
-		
-	}
 
+    // Return the index of the first key in a[] that equals the search key, or -1 if no such key.
+    public static <Key> int firstIndexOf(Key[] a, Key key, Comparator<Key> comparator) {
+    	if (a == null || key == null || comparator == null) {
+    		throw new java.lang.NullPointerException();
+    	}
+    	if (a.length == 0) {
+    		return -1;
+    	}
+    	int l = 0;
+    	int r = a.length - 1;
+    	//StdOut.println(r);
+    	while (l + 1 < r) {
+    		int mid = l + (r - l)/2;
+    		if (comparator.compare(key, a[mid]) <= 0) {
+    			r = mid;
+    		} else {
+    			l = mid;
+    		}
+    	}
+    	if (comparator.compare(key, a[l]) == 0) {
+    		return l;
+    	}
+    	if (comparator.compare(key, a[r]) == 0) {
+    		return r;
+    	}
+    	return -1;
+
+    }
+
+    // Return the index of the last key in a[] that equals the search key, or -1 if no such key.
+    public static <Key> int lastIndexOf(Key[] a, Key key, Comparator<Key> comparator) {
+    	if (a == null || key == null || comparator == null) {
+    		throw new java.lang.NullPointerException();
+    	}
+    	if (a == null || a.length == 0) {
+    		return -1;
+    	}
+    	int l = 0;
+    	int r = a.length - 1;
+    	while (l + 1 < r) {
+    		int mid = l + (r - l)/2;
+    		if (comparator.compare(key, a[mid]) < 0) {
+    			r = mid;
+    		} else {
+    			l = mid;
+    		}
+    	}
+    	if (comparator.compare(key, a[r]) == 0) {
+    		return r;
+    	}
+    	if (comparator.compare(key, a[l]) == 0) {
+    		return l;
+    	}
+    	return -1;
+    }
 }
+

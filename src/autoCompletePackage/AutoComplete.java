@@ -1,64 +1,81 @@
 package autoCompletePackage;
 
-import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import edu.princeton.cs.introcs.In;
+import edu.princeton.cs.introcs.StdIn;
+import edu.princeton.cs.introcs.StdOut;
 
-public class AutoComplete implements AutoCompleteInterface {
+import java.util.Arrays;
 	
-	private ArrayList<String> searchDataList;
+public abstract class AutoComplete implements AutoCompleteInterface {
 	
-	public AutoComplete() {
-		
-	}
-	public AutoComplete(String list) throws IOException {
-
-		    BufferedReader in = null;
-		    try {
-		      searchDataList = new ArrayList<String>();
-		        in = new BufferedReader(new FileReader( "/data/datalist.txt"));
-		      String inputLine;
-		      while ((inputLine = in.readLine()) != null)
-		        searchDataList.add(inputLine);
-		    }
-		    finally {
-		      if (in != null)
-		        in.close();
-		    }
-		    Insertion.sort(searchDataList);
-		  }
-
+	
 	
 
-	public double weightOf(String term) {
-		return 0 ;
-		
-		
-            
-		
-		
-	}
+	public class Autocomplete {
+		public Term[] quries;
 
-	@Override
-	public String bestMatch(String prefix) {
-		
-		
-		
-		return prefix ;
-	}
+	    // Initialize the data structure from the given array of terms.
+	    public Autocomplete(Term[] terms) {
+	    	if (terms == null) {
+	    		throw new java.lang.NullPointerException();
+	    	}
+	    	this.quries = terms;
+	    	Arrays.sort(quries);
+	    }
 
-	@Override
-	 public Iterable<String> matches(String prefix, int k) {
-		
-        return searchDataList ;
-		
-	}
+	    // Return all words that start with the given prefix, in descending order of weight.
+	    public Term[] allMatches(String prefix) {
+	    	if (prefix == null) {
+	    		throw new java.lang.NullPointerException();
+	    	}
+	    	Term temp = new Term(prefix, 0);
+	    	
+	    	int i = Insertion.firstIndexOf(quries, temp, Term.byPrefixOrder(prefix.length()));
+	    	int j = Insertion.lastIndexOf(quries, temp, Term.byPrefixOrder(prefix.length()));
+	    	if (i == -1 || j == -1) {
+	    		throw new java.lang.NullPointerException();
+	    	}
+			Term[] matches = new Term[j - i + 1];
+			matches = Arrays.copyOfRange(quries, i, j);
+			Arrays.sort(matches, Term.byReverseWeightOrder());
+			return matches;
 
-	@Override
-	public void display() {
-		
-		
-	}
+	    }
 
+	    // Return the number of terms that start with the given prefix.
+	    public int numberOfMatches(String prefix) {
+	    	if (prefix == null) {
+	    		throw new java.lang.NullPointerException();
+	    	}
+	    	Term temp = new Term(prefix, 0);
+	    	int i = Insertion.firstIndexOf(quries, temp, Term.byPrefixOrder(prefix.length()));
+	    	int j = Insertion.lastIndexOf(quries, temp, Term.byPrefixOrder(prefix.length()));
+			return j - i + 1;
+	    }
+
+	    public  void main(String[] args) {
+
+	    // read in the terms from a file
+	    String filename = args[0];
+	    In in = new In(filename);
+	    int N = in.readInt();
+	    Term[] terms = new Term[N];
+	    for (int i = 0; i < N; i++) {
+	        double weight = in.readDouble();       // read the next weight
+	        in.readChar();                         // scan past the tab
+	        String query = in.readLine();          // read the next query
+	        terms[i] = new Term(query, weight);    // construct the term
+	    }
+
+	    // read in queries from standard input and print out the top k matching terms
+	    int k = Integer.parseInt(args[1]);
+	    Autocomplete autocomplete = new Autocomplete(terms);
+	    while (StdIn.hasNextLine()) {
+	        String prefix = StdIn.readLine();
+	        Term[] results = autocomplete.allMatches(prefix);
+	        for (int i = 0; i < Math.min(k, results.length); i++)
+	            StdOut.println(results[i]);
+	    }
+	}
+	}
 }
